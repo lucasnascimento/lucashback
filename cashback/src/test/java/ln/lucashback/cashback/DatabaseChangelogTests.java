@@ -13,7 +13,6 @@ import static org.mockito.BDDMockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-
 public class DatabaseChangelogTests {
 
     @Autowired
