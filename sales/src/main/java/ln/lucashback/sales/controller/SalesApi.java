@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/sales")
 public class SalesApi {
     @Autowired
     private CommandGateway commandGateway;
