@@ -1,0 +1,16 @@
+spring.h2.console:
+  enabled: true
+  path: /h2-console
+
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sales
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    jpa:
+      hibernate:
+        ddl-auto: create-drop
+      properties:
+        hibernate.jdbc.lob.non_contextual_creation: true
