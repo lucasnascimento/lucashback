@@ -14,18 +14,18 @@ import org.springframework.stereotype.Component;
 import java.io.StringWriter;
 import java.util.Map;
 
-//@Aspect
+@Aspect
 @Component
 public class FeignClientAspect {
 
     @Autowired
     CacheService cacheService;
 
-//    @Pointcut("execution(* org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient.*(..))")
+    @Pointcut("execution(* org.springframework.cloud.openfeign.ribbon.LoadBalancerFeignClient.*(..))")
     public void feignClientPointcut() {
     }
 
-//    @org.aspectj.lang.annotation.Around("ln.lucashback.sales.feign.FeignClientAspect.feignClientPointcut()")
+    @org.aspectj.lang.annotation.Around("ln.lucashback.sales.feign.FeignClientAspect.feignClientPointcut()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
 
         Object result = joinPoint.proceed();
