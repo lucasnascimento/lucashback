@@ -48,3 +48,8 @@ Foi implementado um cache em REDIS cujo o objetivo é armazenar a ultima versão
 #### Netflix OSS - Eureka e Zull
 Foram criados dois projetos auxiliares eureka e gateway (Zull), cujo objetivo é ter um serviço de descoberta de nomes dos serviços e o Zull para balanceamento de carga e ApiGateway dos demais projetos.
 
+# Disclaimer
+
+* Não foi possível criar a integração com a API do Spotify, conceitualmente eu criaria um client Feign para essa integração e um schedule para execução
+* Ambiente não foi dockerizado, minha escolha seria criar os serviços com Kubernates
+* Ambiente de integração não criado. Usaria o Travis.
