@@ -38,7 +38,7 @@ As APIS do projeto foram distribuidas funcionalmente em 3 microserviços, são e
 #### CQRS/ES
 Foi usado no SALES uma arquitetura orientada a eventos usando o [Axon Framework](https://axoniq.io/)
 
-[OrderAggretage.java](https://github.com/lucasnascimento/lucashback/blob/master/sales/src/main/java/ln/lucashback/sales/aggregates/OrderAggregate.java)
+[OrderAggregate.java](https://github.com/lucasnascimento/lucashback/blob/master/sales/src/main/java/ln/lucashback/sales/aggregates/OrderAggregate.java)
 
 #### Cache de chamadas entre microserviços usando FEIGN/REDIS
 Foi implementado um cache em REDIS cujo o objetivo é armazenar a ultima versão válida dos ojetos de retorno dos serivços CATALOG e CASHBACK, e em caso de indispobilidade o Fallback recupera o dado do cache. 
