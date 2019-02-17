@@ -5,19 +5,19 @@ Este repositório tem por objetivo apresentar a solução proposta para o desafi
 ## Dependências externas:
 
 ```
+$ docker run --name some-mongo -d -p 27017:27017 mongo:4
 $ docker run --name some-redis -d -p6379:6379 redis
 $ docker run -d --name some-axon-server -p 8024:8024 -p 8124:8124 axoniq/axonserver
-$ docker run --name some-mongo -d -p 27017:27017 mongo:4
 ```
 
 ## Executar local
 
 ```
-cd /eureka ; ./gradlew bootRun
-cd /gateway ; ./gradlew  bootRun
-cd /cashback ; ./gradlew bootRun
-cd /catalog ; ./gradlew bootrun
-cd /sales ; ./gradlew bootRun
+$ cd /eureka ; ./gradlew bootRun
+$ cd /gateway ; ./gradlew  bootRun
+$ cd /cashback ; ./gradlew bootRun
+$ cd /catalog ; ./gradlew bootrun
+$ cd /sales ; ./gradlew bootRun
 ```
 Depois de subir os projetos o API-GATEWAY estará em http://localhost:2808/
 
@@ -36,11 +36,13 @@ As APIS do projeto foram distribuidas funcionalmente em 3 microserviços, são e
 ### Resiliencia e tolerancia a falhas
 
 #### CQRS/ES
-Foi usado no SALES uma arquitetura orientada a eventos usando o Axion Framework
+Foi usado no SALES uma arquitetura orientada a eventos usando o [Axon Framework](https://axoniq.io/)
+
 [OrderAggretage.java](https://github.com/lucasnascimento/lucashback/blob/master/sales/src/main/java/ln/lucashback/sales/aggregates/OrderAggregate.java)
 
 #### Cache de chamadas entre microserviços usando FEIGN/REDIS
 Foi implementado um cache em REDIS cujo o objetivo é armazenar a ultima versão válida dos ojetos de retorno dos serivços CATALOG e CASHBACK, e em caso de indispobilidade o Fallback recupera o dado do cache. 
+
 [FeignClientAspect.java](https://github.com/lucasnascimento/lucashback/blob/master/sales/src/main/java/ln/lucashback/sales/feign/FeignClientAspect.java)
 
 #### Netflix OSS - Eureka e Zull
