@@ -3,6 +3,10 @@ package ln.lucashback.sales.service;
 import ln.lucashback.sales.events.OrderCalculatedEvent;
 import ln.lucashback.sales.events.OrderFinishedEvent;
 import ln.lucashback.sales.events.OrderPlacedEvent;
+import ln.lucashback.sales.feign.CacheService;
+import ln.lucashback.sales.feign.CashbackClient;
+import ln.lucashback.sales.feign.CatalogClient;
+import ln.lucashback.sales.feign.CatalogResponse;
 import ln.lucashback.sales.model.Order;
 import ln.lucashback.sales.model.OrderItem;
 import ln.lucashback.sales.queries.FindAllOrdersQuery;
@@ -14,7 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,12 +31,23 @@ public class OrderEventHandler {
     @Autowired
     OrderRepository orderRepository;
 
+    @Autowired
+    CatalogClient catalogClient;
+
+    @Autowired
+    CashbackClient cashbackClient;
+
+    @Autowired
+    CacheService cacheService;
+
+
     @EventHandler
     public void on(OrderPlacedEvent event) {
         String orderId = event.getOrderId();
         Order order = new Order();
         order.setOrderId(orderId);
         order.setCustomerName(event.getCustomerName());
+        order.setOrderDate(LocalDateTime.now());
         List<OrderItem> orderItems = event.getProducts().stream()
                 .map(OrderItem::new)
                 .collect(Collectors.toList());
@@ -45,8 +64,39 @@ public class OrderEventHandler {
     }
 
     private Order calculateOrder(Order order) {
-        //TODO: Escrever procedimento de cálculo
-         order.setOrderCalculated();
+        order.setOrderCalculated();
+
+        order.getItems().stream().forEach(orderItem -> {
+            String productId = orderItem.getProductId();
+            CatalogResponse productById = catalogClient.getProductById(productId);
+
+            if (productById != null) {
+                cacheService.storeProductOnCache(productById);
+                orderItem.setProductValue(productById.getProduct().getPrice());
+                orderItem.setGenre(productById.getProduct().getGenre());
+
+                Map<String, Double> cashbackByGenre = cashbackClient.getCashbackByGenre(orderItem.getGenre());
+                cacheService.storeCashbackOnCache(orderItem.getGenre(), cashbackByGenre);
+                String weekDay = order.getWeekDayRepresentation();
+                Double percentile = cashbackByGenre.get(weekDay);
+                orderItem.setCashbackPercentile(percentile);
+                orderItem.setCashbackValue(BigDecimal.valueOf(orderItem.getProductValue() * orderItem.getCashbackPercentile()).setScale(2, RoundingMode.HALF_UP));
+            } else {
+                order.setOrderInvalid();
+            }
+        });
+
+        double totalCashback = order.getItems().stream()
+                .map(OrderItem::getCashbackValue)
+                .map(bigDecimal -> bigDecimal.setScale(2, RoundingMode.HALF_UP))
+                .map(BigDecimal::doubleValue)
+                .mapToDouble(Double::new)
+                .sum();
+        order.setCashBackTotal(totalCashback);
+
+        double totalOrder = order.getItems().stream().mapToDouble(OrderItem::getProductValue).sum();
+        order.setOrderTotal(totalOrder);
+
         return order;
     }
 
@@ -65,7 +115,9 @@ public class OrderEventHandler {
 
     @QueryHandler
     public Page<Order> handle(FindAllOrdersQuery query) {
-        return orderRepository.findAll(query.getPageable());
+        return orderRepository.findByOrderDateAfterAndOrderDateBeforeOrderByOrderDateDesc(query.getStartPeriod()
+                , query.getEndPeriod()
+                , query.getPageable());
     }
 
     @QueryHandler
