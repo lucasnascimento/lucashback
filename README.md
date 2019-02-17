@@ -19,8 +19,12 @@ cd /cashback ; ./gradlew bootRun
 cd /catalog ; ./gradlew bootrun
 cd /sales ; ./gradlew bootRun
 ```
+Depois de subir os projetos o API-GATEWAY estará em http://localhost:2808/
 
-## Decisões arquiteturais.
+## Documentação da API
+[Api Publicada no Postman](https://documenter.getpostman.com/view/5722889/S11Bz2v9)
+
+## Decisões arquiteturais
 
 ### Decomposição em serviços funcionais
 
